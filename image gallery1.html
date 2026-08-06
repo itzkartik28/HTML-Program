@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Image Gallery</title>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial,sans-serif;
+}
+
+body{
+    background:#f2f2f2;
+    padding:20px;
+}
+
+h1{
+    text-align:center;
+    margin-bottom:20px;
+    color:#333;
+}
+
+.buttons{
+    text-align:center;
+    margin-bottom:25px;
+}
+
+.buttons button{
+    padding:10px 20px;
+    margin:5px;
+    border:none;
+    border-radius:5px;
+    background:#444;
+    color:white;
+    cursor:pointer;
+    transition:.3s;
+}
+
+.buttons button:hover,
+.buttons button.active{
+    background:#009688;
+}
+
+.gallery{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+    gap:20px;
+}
+
+.image{
+    overflow:hidden;
+    border-radius:10px;
+    background:white;
+    box-shadow:0 4px 10px rgba(0,0,0,.2);
+}
+
+.image img{
+    width:100%;
+    height:220px;
+    object-fit:cover;
+    cursor:pointer;
+    transition:.4s;
+}
+
+.image img:hover{
+    transform:scale(1.1);
+}
+
+.lightbox{
+    display:none;
+    position:fixed;
+    left:0;
+    top:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,.9);
+    justify-content:center;
+    align-items:center;
+    flex-direction:column;
+    z-index:100;
+}
+
+.lightbox img{
+    width:80%;
+    max-width:700px;
+    border-radius:10px;
+}
+
+.close{
+    position:absolute;
+    top:20px;
+    right:35px;
+    color:white;
+    font-size:45px;
+    cursor:pointer;
+}
+
+.prev,
+.next{
+    position:absolute;
+    top:50%;
+    transform:translateY(-50%);
+    font-size:45px;
+    color:white;
+    background:none;
+    border:none;
+    cursor:pointer;
+}
+
+.prev{left:30px;}
+.next{right:30px;}
+
+.controls{
+    margin-top:20px;
+}
+
+.controls button{
+    padding:10px 20px;
+    margin:5px;
+    border:none;
+    background:#009688;
+    color:white;
+    border-radius:5px;
+    cursor:pointer;
+}
+
+.controls button:hover{
+    background:#00796B;
+}
+
+</style>
+
+</head>
+<body>
+
+<h1>Responsive Image Gallery</h1>
+
+<div class="buttons">
+    <button class="active" data-filter="all">All</button>
+    <button data-filter="nature">Nature</button>
+    <button data-filter="animals">Animals</button>
+    <button data-filter="city">City</button>
+    <button data-filter="food">Food</button>
+</div>
+
+<div class="gallery">
+
+<div class="image nature">
+<img src="https://picsum.photos/id/1015/600/400">
+</div>
+
+<div class="image nature">
+<img src="https://picsum.photos/id/1016/600/400">
+</div>
+
+<div class="image animals">
+<img src="https://picsum.photos/id/1025/600/400">
+</div>
+
+<div class="image animals">
+<img src="https://picsum.photos/id/237/600/400">
+</div>
+
+<div class="image city">
+<img src="https://picsum.photos/id/1031/600/400">
+</div>
+
+<div class="image city">
+<img src="https://picsum.photos/id/1043/600/400">
+</div>
+
+<div class="image food">
+<img src="https://picsum.photos/id/1080/600/400">
+</div>
+
+<div class="image food">
+<img src="https://picsum.photos/id/292/600/400">
+</div>
+
+</div>
+
+<div class="lightbox">
+
+<span class="close">&times;</span>
+
+<button class="prev">&#10094;</button>
+
+<img id="preview">
+
+<button class="next">&#10095;</button>
+
+<div class="controls">
+<button id="play">Play Slideshow</button>
+<button id="stop">Stop</button>
+</div>
+
+</div>
+
+<script>
+
+const images=document.querySelectorAll(".gallery img");
+const preview=document.getElementById("preview");
+const lightbox=document.querySelector(".lightbox");
+
+const prev=document.querySelector(".prev");
+const next=document.querySelector(".next");
+const close=document.querySelector(".close");
+
+const play=document.getElementById("play");
+const stop=document.getElementById("stop");
+
+let current=0;
+let slideShow;
+
+function showImage(index){
+    preview.src=images[index].src;
+}
+
+images.forEach((img,index)=>{
+
+    img.onclick=()=>{
+
+        current=index;
+        showImage(current);
+        lightbox.style.display="flex";
+
+    }
+
+});
+
+next.onclick=()=>{
+
+    current++;
+
+    if(current>=images.length)
+        current=0;
+
+    showImage(current);
+
+}
+
+prev.onclick=()=>{
+
+    current--;
+
+    if(current<0)
+        current=images.length-1;
+
+    showImage(current);
+
+}
+
+close.onclick=()=>{
+
+    lightbox.style.display="none";
+    clearInterval(slideShow);
+
+}
+
+play.onclick=()=>{
+
+    clearInterval(slideShow);
+
+    slideShow=setInterval(()=>{
+
+        current++;
+
+        if(current>=images.length)
+            current=0;
+
+        showImage(current);
+
+    },2000);
+
+}
+
+stop.onclick=()=>{
+
+    clearInterval(slideShow);
+
+}
+
+document.addEventListener("keydown",(e)=>{
+
+    if(lightbox.style.display==="flex"){
+
+        if(e.key==="ArrowRight")
+            next.click();
+
+        if(e.key==="ArrowLeft")
+            prev.click();
+
+        if(e.key==="Escape")
+            close.click();
+
+    }
+
+});
+
+const buttons=document.querySelectorAll(".buttons button");
+const galleryItems=document.querySelectorAll(".gallery .image");
+
+buttons.forEach(button=>{
+
+button.onclick=()=>{
+
+buttons.forEach(btn=>btn.classList.remove("active"));
+
+button.classList.add("active");
+
+let filter=button.dataset.filter;
+
+galleryItems.forEach(item=>{
+
+if(filter==="all" || item.classList.contains(filter))
+item.style.display="block";
+else
+item.style.display="none";
+
+});
+
+}
+
+});
+
+</script>
+
+</body>
+</html>
